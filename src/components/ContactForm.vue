@@ -55,7 +55,78 @@
         <strong>Liên hệ yêu thích</strong>
       </label>
     </div>
+    <div class="form-group">
+      <label>Bạn có sở thích không?</label>
+      <div>
+        <div class="form-check form-check-inline">
+          <Field
+            name="hasHobbies"
+            type="radio"
+            value="yes"
+            class="form-check-input"
+            v-model="contactLocal.hasHobbies"
+          />
+          <label class="form-check-label">Có</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <Field
+            name="hasHobbies"
+            type="radio"
+            value="no"
+            class="form-check-input"
+            v-model="contactLocal.hasHobbies"
+          />
+          <label class="form-check-label">Không</label>
+        </div>
+      </div>
+    </div>
 
+    <div class="form-group ml-3" v-if="contactLocal.hasHobbies === 'yes'">
+      <label>Chọn các sở thích của bạn (Chọn ít nhất 1):</label>
+      <div>
+        <div class="form-check">
+          <Field
+            name="hobbies"
+            type="checkbox"
+            value="Xã Hội"
+            class="form-check-input"
+            v-model="contactLocal.hobbies"
+          />
+          <label class="form-check-label">Xã Hội</label>
+        </div>
+        <div class="form-check">
+          <Field
+            name="hobbies"
+            type="checkbox"
+            value="Khoa Học"
+            class="form-check-input"
+            v-model="contactLocal.hobbies"
+          />
+          <label class="form-check-label">Khoa Học</label>
+        </div>
+        <div class="form-check">
+          <Field
+            name="hobbies"
+            type="checkbox"
+            value="Công Nghệ"
+            class="form-check-input"
+            v-model="contactLocal.hobbies"
+          />
+          <label class="form-check-label">Công Nghệ</label>
+        </div>
+        <div class="form-check">
+          <Field
+            name="hobbies"
+            type="checkbox"
+            value="Giải Trí"
+            class="form-check-input"
+            v-model="contactLocal.hobbies"
+          />
+          <label class="form-check-label">Giải Trí</label>
+        </div>
+      </div>
+      <ErrorMessage name="hobbies" class="error-feedback" />
+    </div>
     <div class="form-group">
       <button class="btn btn-primary"><i class="fas fa-save"></i> Lưu</button>
       <button
@@ -102,24 +173,38 @@ export default {
           /((09|03|07|08|05)+([0-9]{8})\b)/g,
           "Số điện thoại không hợp lệ.",
         ),
+      // --- Cập nhật Logic Ràng Buộc ---
+      hasHobbies: yup.string().nullable(),
+      hobbies: yup.array().when("hasHobbies", {
+        is: "yes",
+        then: (schema) => schema.min(1, "Bạn phải chọn ít nhất 1 sở thích."),
+        otherwise: (schema) => schema.notRequired(),
+      }),
     });
+
     return {
-      // Chúng ta không muốn hiệu chỉnh trực tiếp props nên tạo một biến cục bộ để liên kết với form
-      contactLocal: { ...this.contact },
+      // Đảm bảo dữ liệu nhận vào form có sẵn mảng rỗng và giá trị mặc định
+      // cho sở thích nếu chưa có
+      contactLocal: {
+        hasHobbies: this.contact.hasHobbies || "no",
+        hobbies: this.contact.hobbies || [],
+        ...this.contact,
+      },
       contactFormSchema,
     };
   },
   methods: {
     submitContact() {
+      // Trước khi gửi đi, nếu chọn "Không" thì dọn sạch mảng sở thích 
+      // tránh lưu rác dữ liệu
+      if (this.contactLocal.hasHobbies === "no") {
+        this.contactLocal.hobbies = [];
+      }
       this.$emit("submit:contact", this.contactLocal);
     },
     deleteContact() {
-      this.$emit("delete:contact", this.contactLocal.id);
+      this.$emit("delete:contact", this.contactLocal._id);
     },
   },
 };
 </script>
-
-<style scoped>
-@import "@/assets/form.css";
-</style>

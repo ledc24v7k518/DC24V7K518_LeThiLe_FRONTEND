@@ -23,6 +23,8 @@ export default {
         address: "",
         phone: "",
         favorite: false,
+        hasHobbies: "no",
+        hobbies: [],
       },
       message: "",
     };

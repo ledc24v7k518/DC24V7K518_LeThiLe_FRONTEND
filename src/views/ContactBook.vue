@@ -78,6 +78,7 @@ export default {
   computed: {
     contactStrings() {
       return this.contacts.map((contact) => {
+        const hobbiesStr = contact.hobbies ? contact.hobbies.join(" ") : "";
         const { name, email, address, phone } = contact;
         return [name, email, address, phone].join("");
       });
